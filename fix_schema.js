@@ -1,0 +1,153 @@
+const fs = require('fs');
+const path = require('path');
+
+const schemaContent = `// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:password@localhost:5432/topupdb?schema=public"
+}
+
+// Enums
+enum Role {
+  USER
+  ADMIN
+  RESELLER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  EXPIRED
+  FAILED
+}
+
+// Models
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  whatsapp      String?
+  role          Role      @default(USER)
+  balance       Float     @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  transactions  Transaction[]
+  deposits      Deposit[]
+}
+
+model Game {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  publisher     String?
+  description   String?
+  thumbnailUrl  String?
+  bannerUrl     String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  
+  categories    Category[] 
+  products      Product[]
+}
+
+model Category {
+  id            String    @id @default(cuid())
+  name          String
+  gameId        String
+  game          Game      @relation(fields: [gameId], references: [id])
+  products      Product[]
+}
+
+model Product {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  name          String
+  price         Float
+  markup        Float     @default(0)
+  sellingPrice  Float
+  isActive      Boolean   @default(true)
+  
+  gameId        String
+  game          Game      @relation(fields: [gameId], references: [id])
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  
+  transactions  Transaction[]
+}
+
+model PaymentMethod {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  name          String
+  logoUrl       String?
+  feeCustom     Float     @default(0)
+  feePercent    Float     @default(0)
+  minAmount     Float     @default(0)
+  isActive      Boolean   @default(true)
+  
+  transactions  Transaction[]
+}
+
+model Transaction {
+  id            String        @id @default(cuid()) 
+  invoiceId     String        @unique
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  
+  productId     String
+  product       Product       @relation(fields: [productId], references: [id])
+  
+  gameId        String
+  
+  targetId      String
+  targetServer  String?
+  
+  amount        Float
+  fee           Float
+  totalAmount   Float
+  
+  paymentMethodId String
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
+  paymentUrl    String?
+  
+  sn            String?
+  message       String?
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Deposit {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  amount        Float
+  status        PaymentStatus @default(UNPAID)
+  createdAt     DateTime      @default(now())
+}
+`;
+
+// ... (content string) ...
+// Replace CRLF with LF just in case
+const content = schemaContent.replace(/\r\n/g, '\n');
+fs.writeFileSync(path.join(__dirname, 'prisma', 'schema.prisma'), content, { encoding: 'utf8' });
+console.log('Schema file rewritten in UTF-8 (LF)');

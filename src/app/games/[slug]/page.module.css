@@ -1,0 +1,300 @@
+.container {
+    padding-top: 80px;
+    min-height: 100vh;
+    padding-bottom: 120px;
+    background: #09090b;
+}
+
+.banner {
+    height: 300px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.bannerImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(10px) brightness(0.6);
+    transform: scale(1.1);
+}
+
+.headerContent {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1000px;
+    padding: 0 1rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    z-index: 10;
+}
+
+.gameIcon {
+    width: 120px;
+    height: 120px;
+    border-radius: 1.5rem;
+    border: 4px solid #09090b;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.gameInfo {
+    padding-bottom: 2.5rem;
+}
+
+.gameTitle {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.gamePublisher {
+    color: var(--neon-blue);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.content {
+    max-width: 1000px;
+    margin: 60px auto 0;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2rem;
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.rightColumn {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.section {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 1rem;
+}
+
+.stepNumber {
+    width: 32px;
+    height: 32px;
+    background: var(--neon-purple);
+    color: white;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+}
+
+.inputGroup {
+    display: flex;
+    gap: 1rem;
+}
+
+.input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.input:focus {
+    border-color: var(--neon-blue);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.itemCard {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.itemCard:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.itemCard.selected {
+    background: rgba(0, 240, 255, 0.1);
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+}
+
+.itemAmount {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.itemPrice {
+    font-size: 0.9rem;
+    color: var(--muted-foreground);
+}
+
+.paymentMethods {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.paymentCategory {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.paymentCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.paymentCard:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.paymentCard.selected {
+    border-color: var(--neon-purple);
+    background: rgba(189, 0, 255, 0.1);
+}
+
+.checkoutCard {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    backdrop-filter: blur(20px);
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--muted-foreground);
+}
+
+.totalRow {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--glass-border);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--neon-blue);
+}
+
+.payButton {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    border: none;
+    border-radius: 0.75rem;
+    color: black;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.payButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(189, 0, 255, 0.4);
+}
+
+.payButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+@media (max-width: 768px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+
+    .rightColumn {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        top: auto;
+        z-index: 100;
+        padding: 0;
+    }
+
+    .checkoutCard {
+        border-radius: 1.5rem 1.5rem 0 0;
+        border-bottom: none;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
