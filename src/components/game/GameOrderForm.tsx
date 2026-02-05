@@ -32,7 +32,9 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
     const [showSuccess, setShowSuccess] = useState(false);
 
     // Payment Modal State
+    // Payment Modal State
     const [paymentModal, setPaymentModal] = useState<{ open: boolean, data: any }>({ open: false, data: null });
+    const [errors, setErrors] = useState<{ userId?: string; serverId?: string }>({});
 
     const activeItem = ITEMS.find(i => i.id === selectedItem);
     const activePayment = PAYMENTS.find(p => p.id === selectedPayment);
@@ -42,8 +44,29 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
     const fee = activePayment ? (activePayment.fee / 100) * subtotal : 0;
     const total = subtotal + fee;
 
+    const handleInputChange = (setter: (val: string) => void, field: 'userId' | 'serverId') => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        // Only allow numbers
+        if (!/^\d*$/.test(value)) {
+            setErrors(prev => ({ ...prev, [field]: 'Numbers only allowed' }));
+            return;
+        }
+
+        setErrors(prev => ({ ...prev, [field]: undefined }));
+        setter(value);
+    };
+
+    const validate = () => {
+        const newErrors: { userId?: string; serverId?: string } = {};
+        if (!userId) newErrors.userId = 'User ID is required';
+        if (!serverId) newErrors.serverId = 'Server ID is required';
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleBuy = async () => {
-        if (!userId || !selectedItem || !selectedPayment) return;
+        if (!validate() || !selectedItem || !selectedPayment) return;
 
         setIsProcessing(true);
 
@@ -170,6 +193,8 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
         )
     }
 
+    // ... (rest of code) ...
+
     return (
         <div className={styles.content}>
             {/* Left Column: Form Steps */}
@@ -189,8 +214,10 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                                 className={styles.input}
                                 placeholder="e.g. 12345678"
                                 value={userId}
-                                onChange={(e) => setUserId(e.target.value)}
+                                onChange={handleInputChange(setUserId, 'userId')}
+                                style={errors.userId ? { borderColor: '#ef4444' } : {}}
                             />
+                            {errors.userId && <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem', display: 'block' }}>{errors.userId}</span>}
                         </div>
                         <div style={{ flex: 1 }}>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#a1a1aa' }}>Server ID</label>
@@ -199,8 +226,10 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                                 className={styles.input}
                                 placeholder="e.g. 1234"
                                 value={serverId}
-                                onChange={(e) => setServerId(e.target.value)}
+                                onChange={handleInputChange(setServerId, 'serverId')}
+                                style={errors.serverId ? { borderColor: '#ef4444' } : {}}
                             />
+                            {errors.serverId && <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem', display: 'block' }}>{errors.serverId}</span>}
                         </div>
                     </div>
                     <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: '#666' }}>

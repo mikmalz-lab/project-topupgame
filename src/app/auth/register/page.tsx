@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Gamepad2, ArrowRight, Lock, Mail, User, AlertCircle } from 'lucide-react';
+import { Gamepad2, ArrowRight, Lock, Mail, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import styles from '@/app/page.module.css';
 
 export default function RegisterPage() {
@@ -12,6 +12,7 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -113,17 +114,38 @@ export default function RegisterPage() {
                         />
                     </div>
 
+
                     <div style={{ position: 'relative' }}>
                         <Lock size={18} color="#666" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="Create password"
                             className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+                            style={{ width: '100%', paddingLeft: '3rem', paddingRight: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            style={{
+                                position: 'absolute',
+                                right: '1rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: '#666',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: 0
+                            }}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
                     </div>
 
                     <button
@@ -154,7 +176,7 @@ export default function RegisterPage() {
                     Already have an account? <Link href="/auth/login" style={{ color: 'white', fontWeight: 600 }}>Sign in</Link>
                 </div>
 
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

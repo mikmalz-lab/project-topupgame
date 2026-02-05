@@ -46,7 +46,7 @@ export default function Home() {
       </section>
 
       {/* Popular Section */}
-      <section className={styles.section}>
+      <section className={styles.section} id="games">
         <h2 className={styles.sectionTitle}>
           <Flame size={24} color="#bd00ff" />
           Popular Now

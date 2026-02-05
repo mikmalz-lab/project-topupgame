@@ -12,22 +12,22 @@ export function Navbar() {
     <nav className={styles.nav}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-           <Gamepad2 className={styles.logoIcon} />
-           <span>TopUp<span className={styles.highlight}>Game</span></span>
+          <Gamepad2 className={styles.logoIcon} />
+          <span>TopUp<span className={styles.highlight}>Game</span></span>
         </Link>
-        
+
         {/* Desktop Menu */}
         <div className={styles.links}>
-           <Link href="/games" className={styles.link}>Games</Link>
-           <Link href="/status" className={styles.link}>Check Order</Link>
-           <Link href="/auth/login" className={styles.buttonGhost}>
-              Login
-           </Link>
-           <Link href="/auth/register" className={styles.buttonPrimary}>
-              Sign Up
-           </Link>
+          <Link href="/#games" className={styles.link}>Games</Link>
+          <Link href="/status" className={styles.link}>Check Order</Link>
+          <Link href="/auth/login" className={styles.buttonGhost}>
+            Login
+          </Link>
+          <Link href="/auth/register" className={styles.buttonPrimary}>
+            Sign Up
+          </Link>
         </div>
-        
+
         {/* Mobile Toggle */}
         <button className={styles.mobileToggle} onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X /> : <Menu />}
@@ -37,17 +37,17 @@ export function Navbar() {
       {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
-            <motion.div 
-                className={styles.mobileMenu}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-            >
-                <Link href="/games" className={styles.link} onClick={() => setIsOpen(false)}>Games</Link>
-                <Link href="/status" className={styles.link} onClick={() => setIsOpen(false)}>Check Order</Link>
-                <Link href="/auth/login" className={styles.buttonGhost} onClick={() => setIsOpen(false)}>Login</Link>
-                <Link href="/auth/register" className={styles.buttonPrimary} onClick={() => setIsOpen(false)}>Sign Up</Link>
-            </motion.div>
+          <motion.div
+            className={styles.mobileMenu}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <Link href="/#games" className={styles.link} onClick={() => setIsOpen(false)}>Games</Link>
+            <Link href="/status" className={styles.link} onClick={() => setIsOpen(false)}>Check Order</Link>
+            <Link href="/auth/login" className={styles.buttonGhost} onClick={() => setIsOpen(false)}>Login</Link>
+            <Link href="/auth/register" className={styles.buttonPrimary} onClick={() => setIsOpen(false)}>Sign Up</Link>
+          </motion.div>
         )}
       </AnimatePresence>
     </nav>
