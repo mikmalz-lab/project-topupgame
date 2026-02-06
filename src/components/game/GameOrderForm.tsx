@@ -18,9 +18,25 @@ const ITEMS = [
 ];
 
 const PAYMENTS = [
-    { id: 'qris', name: 'QRIS (All E-Wallet)', fee: 0, icon: '🏷️' },
-    { id: 'gopay', name: 'GoPay', fee: 2, icon: '🟢' },
-    { id: 'dana', name: 'DANA', fee: 0, icon: '🔵' },
+    {
+        id: 'ewallet',
+        name: 'E-Wallet',
+        items: [
+            { id: 'qris', name: 'QRIS (All E-Wallet)', fee: 0.7, feeType: 'percent', icon: '🏷️' },
+            { id: 'gopay', name: 'GoPay', fee: 2, feeType: 'percent', icon: '🟢' },
+            { id: 'dana', name: 'DANA', fee: 1.5, feeType: 'percent', icon: '🔵' },
+        ]
+    },
+    {
+        id: 'va',
+        name: 'Virtual Account',
+        items: [
+            { id: 'va_bca', name: 'BCA Virtual Account', fee: 4000, feeType: 'flat', icon: '🏦' },
+            { id: 'va_bni', name: 'BNI Virtual Account', fee: 3500, feeType: 'flat', icon: '🏦' },
+            { id: 'va_bri', name: 'BRI Virtual Account', fee: 3000, feeType: 'flat', icon: '🏦' },
+            { id: 'va_mandiri', name: 'Mandiri Virtual Account', fee: 3500, feeType: 'flat', icon: '🏦' },
+        ]
+    }
 ];
 
 export function GameOrderForm({ gameName }: { gameName: string }) {
@@ -30,18 +46,32 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
     const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState('ewallet');
+    const [lastTransaction, setLastTransaction] = useState<any>(null);
 
-    // Payment Modal State
     // Payment Modal State
     const [paymentModal, setPaymentModal] = useState<{ open: boolean, data: any }>({ open: false, data: null });
     const [errors, setErrors] = useState<{ userId?: string; serverId?: string }>({});
 
     const activeItem = ITEMS.find(i => i.id === selectedItem);
-    const activePayment = PAYMENTS.find(p => p.id === selectedPayment);
+
+    // Helper to find selected payment object
+    const findPayment = (id: string | null) => {
+        if (!id) return null;
+        for (const group of PAYMENTS) {
+            const found = group.items.find(p => p.id === id);
+            if (found) return found;
+        }
+        return null;
+    };
+
+    const activePayment = findPayment(selectedPayment);
 
     // Calculate total
     const subtotal = activeItem ? activeItem.price : 0;
-    const fee = activePayment ? (activePayment.fee / 100) * subtotal : 0;
+    const fee = activePayment
+        ? (activePayment.feeType === 'percent' ? (activePayment.fee / 100) * subtotal : activePayment.fee)
+        : 0;
     const total = subtotal + fee;
 
     const handleInputChange = (setter: (val: string) => void, field: 'userId' | 'serverId') => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,25 +101,30 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
         setIsProcessing(true);
 
         try {
-            // Call Mock Create API
-            const res = await fetch('/api/transaction/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId,
-                    serverId,
-                    itemId: selectedItem,
-                    paymentMethod: selectedPayment,
-                    amount: total
-                })
-            });
+            // Simulate API Call delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const result = await res.json();
+            // Generate dummy data
+            const isVA = selectedPayment.startsWith('va_');
+            const generatedInvoiceId = `INV-${Date.now().toString().slice(-8)}${Math.floor(Math.random() * 100)}`;
 
-            if (result.success) {
-                // Open Payment Modal instead of simulated success directly
-                setPaymentModal({ open: true, data: result.data });
-            }
+            const data = {
+                invoiceId: generatedInvoiceId, // Add Invoice ID
+                amount: total,
+                payment: {
+                    type: isVA ? 'VA' : 'QRIS',
+                    // Dummy VA Number or QRIS URL
+                    vaNumber: isVA ? `88${Math.floor(Math.random() * 1000000000)}` : null,
+                    qrisUrl: isVA ? null : 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ExampleQRIS',
+                    checkoutUrl: isVA ? null : 'https://example.com/pay',
+                    instructions: isVA
+                        ? ['Open your Mobile Banking App', `Select ${activePayment?.name}`, `Enter Virtual Account Number: 88...`, 'Confirm Payment']
+                        : ['Open any E-Wallet app', 'Scan QR Code shown below', 'Check details and Confirm', 'Payment accepted automatically']
+                }
+            };
+
+            setPaymentModal({ open: true, data });
+
         } catch (error) {
             console.error('Order failed', error);
             alert('Failed to connect to server');
@@ -100,6 +135,7 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
 
     const handleSimulatePayment = () => {
         // Simulate Success from inside Modal
+        setLastTransaction(paymentModal.data); // Store data for success screen
         setPaymentModal({ open: false, data: null });
         setShowSuccess(true);
     };
@@ -119,17 +155,34 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                     <Check size={40} color="white" />
                 </div>
                 <h2 className={styles.sectionTitle} style={{ fontSize: '2rem', marginBottom: '1rem' }}>Payment Successful!</h2>
+
+                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'inline-block' }}>
+                    <p style={{ fontSize: '0.9rem', color: '#a1a1aa', marginBottom: '0.25rem' }}>Invoice ID</p>
+                    <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--neon-blue)', letterSpacing: '1px' }}>
+                        {lastTransaction?.invoiceId}
+                    </p>
+                </div>
+
                 <p style={{ color: '#a1a1aa' }}>
                     Your order for <strong>{activeItem?.name}</strong> has been processed.<br />
                     Diamonds will be added to ID: <strong>{userId} ({serverId})</strong> shortly.
                 </p>
-                <button
-                    className={styles.buttonGhost}
-                    style={{ marginTop: '2rem', padding: '0.75rem 1.5rem', cursor: 'pointer' }}
-                    onClick={() => window.location.href = '/'}
-                >
-                    Back to Home
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>
+                    <button
+                        className={styles.buttonGhost}
+                        style={{ padding: '0.75rem 1.5rem', cursor: 'pointer' }}
+                        onClick={() => window.location.href = '/'}
+                    >
+                        Back to Home
+                    </button>
+                    <button
+                        className={styles.buttonGhost} // Reusing ghost style but maybe giving it a border
+                        style={{ padding: '0.75rem 1.5rem', cursor: 'pointer', border: '1px solid var(--neon-blue)', color: 'var(--neon-blue)' }}
+                        onClick={() => window.location.href = '/status'}
+                    >
+                        Check Status
+                    </button>
+                </div>
             </motion.div>
         );
     }
@@ -152,23 +205,35 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                         textAlign: 'center', position: 'relative'
                     }}
                 >
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'white', marginBottom: '0.5rem' }}>Scan to Pay</h2>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'white', marginBottom: '0.5rem' }}>
+                        {paymentModal.data.payment.type === 'VA' ? 'Complete Payment' : 'Scan to Pay'}
+                    </h2>
                     <p style={{ color: '#a1a1aa', marginBottom: '1.5rem' }}>Total: <span style={{ color: 'var(--neon-blue)', fontWeight: 'bold' }}>Rp {paymentModal.data.amount.toLocaleString()}</span></p>
 
-                    <div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem', margin: '0 auto 1.5rem', width: 'fit-content' }}>
-                        {/* Using img tag for generic QR code from API */}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={paymentModal.data.payment.qrisUrl} alt="QRIS" width={200} height={200} />
+                    <div style={{ background: 'white', padding: '1rem', borderRadius: '0.5rem', margin: '0 auto 1.5rem', width: 'fit-content', color: 'black' }}>
+                        {paymentModal.data.payment.type === 'VA' ? (
+                            <div style={{ textAlign: 'center' }}>
+                                <p style={{ fontSize: '0.9rem', marginBottom: '0.25rem', color: '#666' }}>Virtual Account Number:</p>
+                                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '2px' }}>{paymentModal.data.payment.vaNumber}</p>
+                            </div>
+                        ) : (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img src={paymentModal.data.payment.qrisUrl} alt="QRIS" width={200} height={200} />
+                        )}
                     </div>
 
                     <div style={{ marginBottom: '1.5rem', textAlign: 'left', fontSize: '0.9rem', color: '#ccc', background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.5rem' }}>
                         <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Instructions:</p>
                         <ol style={{ paddingLeft: '1.2rem', gap: '0.25rem', display: 'flex', flexDirection: 'column' }}>
                             {paymentModal.data.payment.instructions.map((inst: string, i: number) => (
-                                <li key={i}>{inst}</li>
+                                <li key={i}>{inst.includes('88...') ? inst.replace('88...', paymentModal.data.payment.vaNumber) : inst}</li>
                             ))}
                         </ol>
                     </div>
+
+                    <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '1rem' }}>
+                        Checking payment status automatically... (Simulated 60s)
+                    </p>
 
                     <button
                         onClick={handleSimulatePayment}
@@ -179,7 +244,7 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                             marginBottom: '0.5rem'
                         }}
                     >
-                        Simulate Success (Check Status)
+                        I Have Paid (Simulate Success)
                     </button>
                     <button
                         onClick={() => setPaymentModal({ open: false, data: null })}
@@ -192,8 +257,6 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
             </div>
         )
     }
-
-    // ... (rest of code) ...
 
     return (
         <div className={styles.content}>
@@ -263,8 +326,32 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                         <div className={styles.stepNumber}>3</div>
                         <h2 className={styles.sectionTitle}>Select Payment</h2>
                     </div>
+
+                    {/* Payment Group Toggles */}
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.5rem', borderRadius: '0.75rem' }}>
+                        {PAYMENTS.map(group => (
+                            <button
+                                key={group.id}
+                                onClick={() => setSelectedGroup(group.id)}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.75rem',
+                                    borderRadius: '0.5rem',
+                                    background: selectedGroup === group.id ? 'var(--neon-blue)' : 'transparent',
+                                    color: selectedGroup === group.id ? 'black' : 'white',
+                                    border: 'none',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                {group.name}
+                            </button>
+                        ))}
+                    </div>
+
                     <div className={styles.paymentMethods}>
-                        {PAYMENTS.map((payment) => (
+                        {PAYMENTS.find(g => g.id === selectedGroup)?.items.map((payment) => (
                             <div
                                 key={payment.id}
                                 className={`${styles.paymentCard} ${selectedPayment === payment.id ? styles.selected : ''}`}
@@ -276,7 +363,7 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                                 </div>
                                 {activeItem && (
                                     <span style={{ fontWeight: '700' }}>
-                                        Rp {Math.floor(activeItem.price * (1 + payment.fee / 100)).toLocaleString('id-ID')}
+                                        Rp {Math.floor(activeItem.price + (payment.feeType === 'percent' ? (payment.fee / 100) * activeItem.price : payment.fee)).toLocaleString('id-ID')}
                                     </span>
                                 )}
                             </div>
