@@ -94,7 +94,7 @@ export default function RegisterPage() {
                             type="text"
                             placeholder="Full Name"
                             className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
@@ -107,7 +107,7 @@ export default function RegisterPage() {
                             type="email"
                             placeholder="Email address"
                             className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -121,7 +121,7 @@ export default function RegisterPage() {
                             type={showPassword ? "text" : "password"}
                             placeholder="Create password"
                             className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', paddingRight: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+                            style={{ width: '100%', paddingLeft: '3rem', paddingRight: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required

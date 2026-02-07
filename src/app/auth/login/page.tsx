@@ -99,9 +99,9 @@ export default function LoginPage() {
                         <Mail size={18} color="#666" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                         <input
                             type="email"
-                            placeholder="admin1@topup.com"
+                            placeholder="name@example.com"
                             className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -112,9 +112,9 @@ export default function LoginPage() {
                         <Lock size={18} color="#666" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                         <input
                             type="password"
-                            placeholder="p@ssw0rd"
+                            placeholder="Your password"
                             className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
