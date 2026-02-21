@@ -99,12 +99,15 @@ export default function LoginPage() {
                         <Mail size={18} color="#666" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                         <input
                             type="email"
-                            placeholder="name@example.com"
-                            className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
+                            placeholder="Enter your email"
+                            style={{
+                                width: '100%', padding: '1rem 1rem 1rem 3rem', background: 'rgba(0,0,0,0.3)',
+                                border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '0.75rem', outline: 'none'
+                            }}
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            autoComplete="new-email" // Prevent browser autofill weirdness
                         />
                     </div>
 
@@ -112,12 +115,15 @@ export default function LoginPage() {
                         <Lock size={18} color="#666" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                         <input
                             type="password"
-                            placeholder="Your password"
-                            className={styles.input}
-                            style={{ width: '100%', paddingLeft: '3rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
+                            placeholder="Enter your password"
+                            style={{
+                                width: '100%', padding: '1rem 1rem 1rem 3rem', background: 'rgba(0,0,0,0.3)',
+                                border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '0.75rem', outline: 'none'
+                            }}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            autoComplete="new-password" // Prevent browser autofill weirdness
                         />
                     </div>
 

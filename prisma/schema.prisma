@@ -141,3 +141,10 @@ model Deposit {
   status        PaymentStatus @default(UNPAID)
   createdAt     DateTime      @default(now())
 }
+
+model Banner {
+  id            String    @id @default(cuid())
+  imageUrl      String
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+}

@@ -4,6 +4,9 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Search, Flame, Zap, Gamepad2, Trophy, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 
 // Mock Data for "Popular" section to demonstrate layout
 const POPULAR_GAMES = [
@@ -16,6 +19,24 @@ const POPULAR_GAMES = [
 ];
 
 export default function Home() {
+  const [banners, setBanners] = useState<any[]>([]);
+  const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000 })]);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch('/api/admin/banners');
+        const json = await res.json();
+        if (json.success) {
+          setBanners(json.data.filter((b: any) => b.isActive));
+        }
+      } catch (error) {
+        console.error("Failed to fetch banners", error);
+      }
+    };
+    fetchBanners();
+  }, []);
+
   return (
     <div className={styles.main}>
       <Navbar />
@@ -77,14 +98,34 @@ export default function Home() {
           <Trophy size={24} color="#00f0ff" />
           Featured Promotions
         </h2>
-        <div style={{
-          width: '100%', height: '200px', borderRadius: '1rem',
-          background: 'linear-gradient(to right, #222, #333)',
-          border: '1px solid var(--glass-border)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <p style={{ color: '#666' }}>Main Promo Banner Slider Space</p>
-        </div>
+
+        {banners.length > 0 ? (
+          <div className={styles.embla} ref={emblaRef} style={{ overflow: 'hidden', borderRadius: '1rem' }}>
+            <div className={styles.emblaContainer} style={{ display: 'flex' }}>
+              {banners.map((banner) => (
+                <div key={banner.id} className={styles.emblaSlide} style={{ flex: '0 0 100%', minWidth: 0, position: 'relative' }}>
+                  <div style={{ width: '100%', paddingTop: '30%', position: 'relative', background: '#111' }}>
+                    <img
+                      src={banner.imageUrl}
+                      alt="Promotion Banner"
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            width: '100%', height: '200px', borderRadius: '1rem',
+            background: 'linear-gradient(to right, #222, #333)',
+            border: '1px solid var(--glass-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <p style={{ color: '#666' }}>Main Promo Banner Slider Space (No Data Yet)</p>
+          </div>
+        )}
       </section>
 
       {/* Footer Stub */}

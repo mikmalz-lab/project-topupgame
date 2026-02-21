@@ -6,16 +6,27 @@ import { useState } from 'react';
 export default function StatusPage() {
     const [invoiceId, setInvoiceId] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'found' | 'not-found'>('idle');
+    const [txData, setTxData] = useState<any>(null);
 
-    const handleCheck = () => {
+    const handleCheck = async () => {
         if (!invoiceId) return;
         setStatus('loading');
+        setTxData(null);
 
-        // Mock API Call
-        setTimeout(() => {
-            if (invoiceId.length > 5) setStatus('found');
-            else setStatus('not-found');
-        }, 1500);
+        try {
+            const res = await fetch(`/api/transaction/status/${encodeURIComponent(invoiceId)}`);
+            const json = await res.json();
+
+            if (json.success && json.data) {
+                setTxData(json.data);
+                setStatus('found');
+            } else {
+                setStatus('not-found');
+            }
+        } catch (error) {
+            console.error("Error checking status:", error);
+            setStatus('not-found');
+        }
     };
 
     return (
@@ -56,12 +67,17 @@ export default function StatusPage() {
                         </button>
                     </div>
 
-                    {/* Result Mockup */}
-                    {status === 'found' && (
-                        <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid #22c55e', borderRadius: '0.5rem' }}>
-                            <h3 style={{ color: '#22c55e', fontWeight: '700', marginBottom: '0.5rem' }}>Transaction Found!</h3>
-                            <p style={{ color: '#ddd' }}>Product: 100 Diamonds (MLBB)</p>
-                            <p style={{ color: '#ddd' }}>Status: <span style={{ color: '#22c55e', fontWeight: 'bold' }}>Success</span></p>
+                    {/* Result */}
+                    {status === 'found' && txData && (
+                        <div style={{ marginTop: '2rem', padding: '1rem', background: txData.status === 'SUCCESS' ? 'rgba(34, 197, 94, 0.1)' : txData.status === 'FAILED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(234, 179, 8, 0.1)', border: `1px solid ${txData.status === 'SUCCESS' ? '#22c55e' : txData.status === 'FAILED' ? '#ef4444' : '#eab308'}`, borderRadius: '0.5rem' }}>
+                            <h3 style={{ color: txData.status === 'SUCCESS' ? '#22c55e' : txData.status === 'FAILED' ? '#ef4444' : '#eab308', fontWeight: '700', marginBottom: '0.5rem' }}>Transaction Found!</h3>
+                            <p style={{ color: '#ddd' }}>Invoice: {txData.invoiceId}</p>
+                            <p style={{ color: '#ddd' }}>Target: {txData.targetId}</p>
+                            <p style={{ color: '#ddd' }}>Product: {txData.productName}</p>
+                            <p style={{ color: '#ddd' }}>Amount: Rp {txData.amount.toLocaleString('id-ID')}</p>
+
+                            <p style={{ color: '#ddd', marginTop: '0.5rem' }}>Payment Status: <span style={{ fontWeight: 'bold' }}>{txData.paymentStatus}</span></p>
+                            <p style={{ color: '#ddd' }}>Order Status: <span style={{ color: txData.status === 'SUCCESS' ? '#22c55e' : txData.status === 'FAILED' ? '#ef4444' : '#eab308', fontWeight: 'bold' }}>{txData.status}</span></p>
                         </div>
                     )}
 
