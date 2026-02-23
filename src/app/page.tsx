@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import { useRouter } from 'next/navigation';
 
 // Mock Data for "Popular" section to demonstrate layout
 const POPULAR_GAMES = [
@@ -20,7 +21,9 @@ const POPULAR_GAMES = [
 
 export default function Home() {
   const [banners, setBanners] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [emblaRef] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000 })]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -36,6 +39,19 @@ export default function Home() {
     };
     fetchBanners();
   }, []);
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim() !== '') {
+      const match = POPULAR_GAMES.find(g => g.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      if (match) {
+        router.push(`/games/${match.name.toLowerCase().replace(/\s+/g, '-')}`);
+      }
+    }
+  };
+
+  const filteredGames = POPULAR_GAMES.filter(game =>
+    game.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className={styles.main}>
@@ -54,7 +70,14 @@ export default function Home() {
           </p>
 
           <div className={styles.searchContainer}>
-            <input type="text" placeholder="Search games (e.g. Mobile Legends)..." className={styles.searchInput} />
+            <input
+              type="text"
+              placeholder="Search games (e.g. Mobile Legends)..."
+              className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
+            />
           </div>
         </div>
 
@@ -74,22 +97,28 @@ export default function Home() {
         </h2>
 
         <div className={styles.grid}>
-          {POPULAR_GAMES.map((game) => (
-            <Link href={`/games/${game.name.toLowerCase().replace(/\s+/g, '-')}`} key={game.id} className={styles.card}>
-              <div className={styles.cardImage} style={{ background: game.gradient }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Gamepad2 size={48} color="rgba(0,0,0,0.2)" />
+          {filteredGames.length > 0 ? (
+            filteredGames.map((game) => (
+              <Link href={`/games/${game.name.toLowerCase().replace(/\s+/g, '-')}`} key={game.id} className={styles.card}>
+                <div className={styles.cardImage} style={{ background: game.gradient }}>
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Gamepad2 size={48} color="rgba(0,0,0,0.2)" />
+                  </div>
                 </div>
-              </div>
-              <div className={styles.cardContent}>
-                <h3 className={styles.cardTitle}>{game.name}</h3>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <p className={styles.cardPublisher}>{game.publisher}</p>
-                  <Star size={14} fill="#fdc" color="#fdc" />
+                <div className={styles.cardContent}>
+                  <h3 className={styles.cardTitle}>{game.name}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <p className={styles.cardPublisher}>{game.publisher}</p>
+                    <Star size={14} fill="#fdc" color="#fdc" />
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          ) : (
+            <p style={{ color: '#aaa', textAlign: 'center', width: '100%', padding: '2rem 0' }}>
+              No games found matching "{searchQuery}"
+            </p>
+          )}
         </div>
       </section>
 
