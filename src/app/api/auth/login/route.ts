@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { signToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
     try {
@@ -17,13 +18,13 @@ export async function POST(request: Request) {
             where: { email }
         });
 
-        if (!user) {
-            return NextResponse.json({ success: false, message: 'User not found' }, { status: 401 });
+        if (!user || !user.password) {
+            return NextResponse.json({ success: false, message: 'Invalid Credentials' }, { status: 401 });
         }
 
-        // Validate Password (Plain text check for seeded data)
-        // In real app: await bcrypt.compare(password, user.password)
-        if (user.password !== password) {
+        // Validate Password
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
             return NextResponse.json({ success: false, message: 'Invalid Credentials' }, { status: 401 });
         }
 

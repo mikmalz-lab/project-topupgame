@@ -5,12 +5,12 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Start seeding...');
 
-    const password = "p@ssw0rd"; // Default password for everyone
+    const password = "$2b$10$9aAoxGPmo8q.dlGjfCVcde7rhqMWLaLkYOC14rh572bGgeI8NFHO."; // pre-hashed "p@ssw0rd"
 
     // 1. Create Admins
     await prisma.user.upsert({
         where: { email: 'admin1@topup.com' },
-        update: {},
+        update: { password: password },
         create: {
             email: 'admin1@topup.com',
             name: 'Super Admin',
@@ -22,7 +22,7 @@ async function main() {
 
     await prisma.user.upsert({
         where: { email: 'owner@topup.com' },
-        update: {},
+        update: { password: password },
         create: {
             email: 'owner@topup.com',
             name: 'Owner Bos',
@@ -34,7 +34,7 @@ async function main() {
 
     await prisma.user.upsert({
         where: { email: 'staff@topup.com' },
-        update: {},
+        update: { password: password },
         create: {
             email: 'staff@topup.com',
             name: 'Support Staff',
@@ -47,7 +47,7 @@ async function main() {
     // 2. Create Members
     await prisma.user.upsert({
         where: { email: 'member1@gmail.com' },
-        update: {},
+        update: { password: password },
         create: {
             email: 'member1@gmail.com',
             name: 'Sultan Gaming',
@@ -59,7 +59,7 @@ async function main() {
 
     await prisma.user.upsert({
         where: { email: 'member2@gmail.com' },
-        update: {},
+        update: { password: password },
         create: {
             email: 'member2@gmail.com',
             name: 'Player Gratisan',
