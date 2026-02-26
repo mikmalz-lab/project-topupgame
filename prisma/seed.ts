@@ -70,6 +70,37 @@ async function main() {
     });
 
     console.log({ admin1, owner, staff, member1, member2 });
+
+    // 3. Create a Game
+    const gameML = await prisma.game.upsert({
+        where: { slug: 'mobile-legends' },
+        update: {},
+        create: {
+            name: 'Mobile Legends',
+            slug: 'mobile-legends',
+            publisher: 'Moonton',
+            isActive: true,
+        }
+    });
+
+    // 4. Create Products for ML
+    const productsData = [
+        { code: 'ML-5', name: '5 Diamonds', price: 1400, sellingPrice: 1500, gameId: gameML.id },
+        { code: 'ML-10', name: '10 Diamonds', price: 2800, sellingPrice: 2900, gameId: gameML.id },
+        { code: 'ML-50', name: '50 Diamonds', price: 13500, sellingPrice: 14000, gameId: gameML.id },
+        { code: 'ML-100', name: '100 + 10 Diamonds', price: 27000, sellingPrice: 28000, gameId: gameML.id },
+        { code: 'ML-250', name: '250 + 25 Diamonds', price: 68000, sellingPrice: 70000, gameId: gameML.id },
+    ];
+
+    for (const p of productsData) {
+        await prisma.product.upsert({
+            where: { code: p.code },
+            update: { price: p.price, sellingPrice: p.sellingPrice, gameId: p.gameId },
+            create: p,
+        });
+    }
+
+    console.log({ gameML, productsCreated: productsData.length });
     console.log(`Seeding finished.`);
 }
 

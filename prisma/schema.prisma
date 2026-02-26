@@ -79,6 +79,8 @@ model Product {
   markup        Float     @default(0)
   sellingPrice  Float
   isActive      Boolean   @default(true)
+  isDiscount    Boolean   @default(false)
+  discountPercent Int     @default(0)
   
   gameId        String
   game          Game      @relation(fields: [gameId], references: [id])

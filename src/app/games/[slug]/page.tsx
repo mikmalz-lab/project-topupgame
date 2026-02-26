@@ -2,6 +2,11 @@ import { Navbar } from '@/components/layout/Navbar';
 import styles from './page.module.css';
 import { Gamepad2, ShieldCheck, Zap } from 'lucide-react';
 import { GameOrderForm } from '@/components/game/GameOrderForm';
+import { PrismaClient } from '@prisma/client';
+import { notFound } from 'next/navigation';
+
+export const dynamic = 'force-dynamic';
+
 
 export default async function GameDetail({
     params,
@@ -9,12 +14,24 @@ export default async function GameDetail({
     params: Promise<{ slug: string }>;
 }) {
     const { slug } = await params;
+    const prisma = new PrismaClient();
 
-    // Format slug back to Title (mock logic)
-    const gameTitle = slug
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+    const game = await prisma.game.findUnique({
+        where: { slug },
+        include: {
+            products: {
+                where: { isActive: true },
+                orderBy: { price: 'asc' }
+            }
+        }
+    });
+
+    if (!game) {
+        notFound();
+    }
+
+    // Format slug back to Title (mock logic if needed, but we have game.name)
+    const gameTitle = game.name;
 
     return (
         <div className={styles.container}>
@@ -22,7 +39,6 @@ export default async function GameDetail({
 
             {/* Hero Banner */}
             <div className={styles.banner}>
-                {/* Placeholder Gradient BG since we don't have real images yet */}
                 <div className={styles.bannerImage} style={{
                     background: 'linear-gradient(to bottom, #2b1055, #7597de)',
                     width: '100%', height: '100%'
@@ -46,7 +62,7 @@ export default async function GameDetail({
             </div>
 
             {/* Main Form Area */}
-            <GameOrderForm gameName={gameTitle} />
+            <GameOrderForm gameName={gameTitle} products={game.products} />
 
         </div>
     );

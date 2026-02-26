@@ -39,7 +39,7 @@ const PAYMENTS = [
     }
 ];
 
-export function GameOrderForm({ gameName }: { gameName: string }) {
+export function GameOrderForm({ gameName, products = [] }: { gameName: string, products?: any[] }) {
     const [userId, setUserId] = useState('');
     const [serverId, setServerId] = useState('');
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
@@ -53,7 +53,10 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
     const [paymentModal, setPaymentModal] = useState<{ open: boolean, data: any }>({ open: false, data: null });
     const [errors, setErrors] = useState<{ userId?: string; serverId?: string }>({});
 
-    const activeItem = ITEMS.find(i => i.id === selectedItem);
+    // Use products prop if available, otherwise fallback to mock ITEMS
+    const activeProducts = products.length > 0 ? products : ITEMS;
+
+    const activeItem = activeProducts.find(i => i.id === selectedItem);
 
     // Helper to find selected payment object
     const findPayment = (id: string | null) => {
@@ -68,7 +71,14 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
     const activePayment = findPayment(selectedPayment);
 
     // Calculate total
-    const subtotal = activeItem ? activeItem.price : 0;
+    // Apply discount if activeItem has isDiscount set to true AND discountPercent > 0
+    let subtotal = 0;
+    if (activeItem) {
+        subtotal = activeItem.sellingPrice || activeItem.price; // fallback to .price for mock data
+        if (activeItem.isDiscount && activeItem.discountPercent > 0) {
+            subtotal = subtotal - (subtotal * (activeItem.discountPercent / 100));
+        }
+    }
     const fee = activePayment
         ? (activePayment.feeType === 'percent' ? (activePayment.fee / 100) * subtotal : activePayment.fee)
         : 0;
@@ -307,16 +317,41 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                         <h2 className={styles.sectionTitle}>Select Item</h2>
                     </div>
                     <div className={styles.grid}>
-                        {ITEMS.map((item) => (
-                            <div
-                                key={item.id}
-                                className={`${styles.itemCard} ${selectedItem === item.id ? styles.selected : ''}`}
-                                onClick={() => setSelectedItem(item.id)}
-                            >
-                                <span className={styles.itemAmount}>{item.name}</span>
-                                <span className={styles.itemPrice}>Rp {item.price.toLocaleString('id-ID')}</span>
-                            </div>
-                        ))}
+                        {activeProducts.map((item) => {
+                            const originalPrice = item.sellingPrice || item.price;
+                            const isDiscounted = item.isDiscount && item.discountPercent > 0;
+                            const currentPrice = isDiscounted
+                                ? originalPrice - (originalPrice * (item.discountPercent / 100))
+                                : originalPrice;
+
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={`${styles.itemCard} ${selectedItem === item.id ? styles.selected : ''}`}
+                                    onClick={() => setSelectedItem(item.id)}
+                                    style={{ position: 'relative' }}
+                                >
+                                    {isDiscounted && (
+                                        <div style={{
+                                            position: 'absolute', top: '-10px', right: '-10px',
+                                            background: '#ef4444', color: 'white', padding: '0.2rem 0.5rem',
+                                            borderRadius: '10px', fontSize: '0.75rem', fontWeight: 'bold'
+                                        }}>
+                                            -{item.discountPercent}%
+                                        </div>
+                                    )}
+                                    <span className={styles.itemAmount}>{item.name}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                        {isDiscounted && (
+                                            <span style={{ textDecoration: 'line-through', color: '#666', fontSize: '0.8rem' }}>
+                                                Rp {Math.floor(originalPrice).toLocaleString('id-ID')}
+                                            </span>
+                                        )}
+                                        <span className={styles.itemPrice}>Rp {Math.floor(currentPrice).toLocaleString('id-ID')}</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </section>
 
@@ -361,11 +396,18 @@ export function GameOrderForm({ gameName }: { gameName: string }) {
                                     <span style={{ fontSize: '1.5rem' }}>{payment.icon}</span>
                                     <span style={{ fontWeight: '600' }}>{payment.name}</span>
                                 </div>
-                                {activeItem && (
-                                    <span style={{ fontWeight: '700' }}>
-                                        Rp {Math.floor(activeItem.price + (payment.feeType === 'percent' ? (payment.fee / 100) * activeItem.price : payment.fee)).toLocaleString('id-ID')}
-                                    </span>
-                                )}
+                                {activeItem && (() => {
+                                    let baseP = activeItem.sellingPrice || activeItem.price;
+                                    if (activeItem.isDiscount && activeItem.discountPercent > 0) {
+                                        baseP = baseP - (baseP * (activeItem.discountPercent / 100));
+                                    }
+                                    const paymentFee = payment.feeType === 'percent' ? (payment.fee / 100) * baseP : payment.fee;
+                                    return (
+                                        <span style={{ fontWeight: '700' }}>
+                                            Rp {Math.floor(baseP + paymentFee).toLocaleString('id-ID')}
+                                        </span>
+                                    );
+                                })()}
                             </div>
                         ))}
                     </div>

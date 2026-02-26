@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from '@/components/admin/Admin.module.css';
 import { MemberSidebar } from '@/components/member/MemberSidebar';
-import { Wallet, QQrCode, CreditCard, ChevronRight } from 'lucide-react';
+import { Wallet, QrCode, CreditCard, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const DEPOSIT_AMOUNTS = [
